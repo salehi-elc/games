@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Infinitives Unjumble</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0a0d14;
+    --glass-bg: rgba(18, 26, 43, 0.65);
+    --glass-border: rgba(0, 240, 255, 0.25);
+    --glass-glow: rgba(0, 240, 255, 0.12);
+    --text-main: #f0f6fc;
+    --text-muted: #8b949e;
+    --neon-cyan: #00f0ff;
+    --neon-blue: #0072ff;
+    --neon-purple: #a100ff;
+    --neon-green: #00ff66;
+    --neon-red: #ff4d6d;
+    --liquid-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    --radius-tech: 24px;
+  }
+  * { box-sizing: border-box; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  body {
+    margin: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: radial-gradient(circle at 50% 10%, #152238 0%, #0a0d14 70%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+  }
+  .wrap { width: 100%; max-width: 800px; display: flex; flex-direction: column; gap: 18px; }
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(35px);
+    -webkit-backdrop-filter: blur(35px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-tech);
+    padding: 24px;
+    box-shadow: var(--liquid-shadow);
+  }
+  header.top { text-align: center; }
+  .eyebrow {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--neon-cyan);
+    font-weight: 700;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 6px 0 2px 0;
+    background: linear-gradient(90deg, #ffffff, var(--neon-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .progress-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--neon-cyan);
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 12px;
+  }
+  .q-type-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--neon-purple);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .instruction { color: var(--text-muted); font-size: 14px; margin-bottom: 14px; }
+  .answer-zone {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px dashed rgba(0, 240, 255, 0.4);
+    border-radius: 18px;
+    padding: 16px;
+    min-height: 74px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-content: flex-start;
+    margin-bottom: 16px;
+  }
+  .answer-zone.correct { border-color: var(--neon-green); box-shadow: 0 0 18px rgba(0, 255, 102, 0.25); }
+  .answer-zone.wrong { border-color: var(--neon-red); animation: shake .3s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .bank-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; margin-bottom: 6px; }
+  .tile {
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid var(--neon-cyan);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .tile:hover { background: rgba(0, 240, 255, 0.25); }
+  .answer-zone .tile { background: rgba(161, 0, 255, 0.18); border-color: var(--neon-purple); }
+  .feedback { min-height: 22px; font-weight: 700; font-size: 15px; margin-top: 10px; text-align: center; }
+  .feedback.ok { color: var(--neon-green); }
+  .feedback.no { color: var(--neon-red); }
+  input[type="text"] {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 16px;
+  }
+  .navbtn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+    border: none;
+    color: #000;
+    padding: 16px;
+    border-radius: 16px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  }
+  .smallbtn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text-muted);
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(5, 8, 15, 0.85);
+    backdrop-filter: blur(20px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+  .modal-card {
+    background: rgba(20, 28, 45, 0.9);
+    border: 1px solid var(--neon-cyan);
+    border-radius: var(--radius-tech);
+    padding: 28px;
+    text-align: center;
+    max-width: 400px;
+  }
+</style>
+</head>
+<body>
+
+<div id="alertModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 id="alertTitle" style="color:var(--neon-cyan); margin:0 0 10px 0;">Attention</h3>
+    <p id="alertText" style="color:var(--text-muted); margin:0 0 20px 0;">Please enter your name!</p>
+    <button class="navbtn" style="margin:0;" onclick="document.getElementById('alertModal').style.display='none'">Got it</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Interactive Grammar System</div>
+    <h1>Infinitives Unjumble</h1>
+    <div class="subtitle" style="color:var(--text-muted); font-size:14px;" id="subHeader">Uses of the infinitive (to + verb)</div>
+  </header>
+
+  <div id="page_name" class="glass-panel">
+    <div style="font-family:'Space Grotesk'; font-weight:700; margin-bottom:8px; font-size:14px; color:var(--neon-cyan);">Enter Student Name</div>
+    <input id="nameInput" type="text" placeholder="Type your full name here...">
+    <button class="navbtn" onclick="startGame()">Start Grammar Challenge →</button>
+  </div>
+
+  <div id="page_game" class="glass-panel" style="display:none;">
+    <div class="progress-badge">
+      <span id="qCounter">Sentence 1 of 20</span>
+      <span id="scoreBadge" style="color:var(--neon-green);">Score: 0</span>
+    </div>
+    <div class="q-type-label" id="typeLabel">After some verbs</div>
+    <div class="instruction">Tap the words to put them in the correct order.</div>
+    <div class="answer-zone" id="answerZone"></div>
+    <div class="bank-zone" id="bankZone"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="navbtn" id="checkBtn" onclick="checkAnswer()">Check ✓</button>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="smallbtn" onclick="clearAnswer()">Clear</button>
+    </div>
+  </div>
+
+  <div id="page_result" class="glass-panel" style="display:none; text-align:center;">
+    <h2 style="font-family:'Space Grotesk'; color:var(--neon-cyan); font-size:28px; margin-bottom:8px;">Challenge Complete! 🚀</h2>
+    <p style="font-size:22px; font-weight:800; color:var(--neon-green); margin-bottom:12px;" id="finalScoreText">Score: 20 / 20</p>
+    <p style="font-size:14px; color:var(--text-muted);">Your detailed score has been recorded for your teacher.</p>
+  </div>
+</div>
+
+<script>
+const GAME_TITLE = "Infinitives Unjumble — Uses of the Infinitive (20 Qs)";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3wdBUc9D5cdsuhC8ZFftvpclgVD0k1Rw6_GG2z4weIyOngoMKspygU7Mb40z7A7n7kg/exec";
+
+const QUESTIONS = [
+  { cat: "After some verbs", s: "I want to travel around the world." },
+  { cat: "After some verbs", s: "Try not to talk about controversial subjects." },
+  { cat: "After some verbs", s: "What are you planning to do next weekend?" },
+  { cat: "After some verbs", s: "I've never offered to look after someone's pet." },
+  { cat: "After some verbs", s: "I'd like to have more time for myself." },
+  { cat: "To give a reason (purpose)", s: "Mary went to the supermarket to buy some milk." },
+  { cat: "To give a reason (purpose)", s: "Dress formally to make a good impression." },
+  { cat: "To give a reason (purpose)", s: "Ask follow-up questions not to let the conversation die." },
+  { cat: "To give a reason (purpose)", s: "We are doing a lot of exercises to learn the rules." },
+  { cat: "To give a reason (purpose)", s: "He's tidied up his bedroom to show his mum he's responsible." },
+  { cat: "After adjectives", s: "I think it's impossible to learn a language in a month." },
+  { cat: "After adjectives", s: "How nice to buy this present for me!" },
+  { cat: "After adjectives", s: "I thought it was easy to use that program." },
+  { cat: "After adjectives", s: "Do you think it's important to learn a foreign language?" },
+  { cat: "After adjectives", s: "I think it's hard to spend the weekend on my own." },
+  { cat: "After a question word", s: "I don't know what to tell you." },
+  { cat: "After a question word", s: "She didn't tell me what to do." },
+  { cat: "After a question word", s: "I don't understand how to do it." },
+  { cat: "After a question word", s: "He told me where to go." },
+  { cat: "After a question word", s: "I can't decide when to phone her." }
+];
+
+let playerName = "";
+let currentQIndex = 0;
+let userScore = 0;
+let attempts = 0;
+let locked = false;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function startGame() {
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) { showAlert("Name Required", "Please enter your full name to start!"); return; }
+  playerName = name;
+  document.getElementById('subHeader').textContent = "Student: " + playerName;
+  document.getElementById('page_name').style.display = 'none';
+  document.getElementById('page_game').style.display = 'block';
+  loadQuestion(0);
+}
+
+function makeTile(word) {
+  const t = document.createElement('span');
+  t.className = 'tile';
+  t.textContent = word;
+  t.onclick = () => {
+    if (locked) return;
+    const parent = t.parentElement;
+    if (parent.id === 'bankZone') document.getElementById('answerZone').appendChild(t);
+    else document.getElementById('bankZone').appendChild(t);
+  };
+  return t;
+}
+
+function loadQuestion(index) {
+  currentQIndex = index;
+  attempts = 0;
+  locked = false;
+  const q = QUESTIONS[index];
+  document.getElementById('qCounter').textContent = "Sentence " + (index + 1) + " of " + QUESTIONS.length;
+  document.getElementById('scoreBadge').textContent = "Score: " + userScore;
+  document.getElementById('typeLabel').textContent = q.cat;
+  const fb = document.getElementById('feedback');
+  fb.textContent = "";
+  fb.className = 'feedback';
+  const az = document.getElementById('answerZone');
+  az.className = 'answer-zone';
+  az.innerHTML = '';
+  const bz = document.getElementById('bankZone');
+  bz.innerHTML = '';
+  const words = q.s.split(' ');
+  let tiles = shuffle(words);
+  if (tiles.join(' ') === q.s) tiles = shuffle(words);
+  tiles.forEach(w => bz.appendChild(makeTile(w)));
+  document.getElementById('checkBtn').textContent = 'Check ✓';
+}
+
+function clearAnswer() {
+  if (locked) return;
+  const az = document.getElementById('answerZone');
+  const bz = document.getElementById('bankZone');
+  while (az.firstChild) bz.appendChild(az.firstChild);
+}
+
+function currentAnswer() {
+  return Array.from(document.getElementById('answerZone').children).map(t => t.textContent).join(' ');
+}
+
+function checkAnswer() {
+  if (locked) { nextQuestion(); return; }
+  const q = QUESTIONS[currentQIndex];
+  const total = q.s.split(' ').length;
+  const placed = document.getElementById('answerZone').children.length;
+  const fb = document.getElementById('feedback');
+  if (placed < total) {
+    fb.textContent = "Use all the words first!";
+    fb.className = 'feedback no';
+    return;
+  }
+  if (currentAnswer() === q.s) {
+    if (attempts === 0) userScore++;
+    locked = true;
+    document.getElementById('scoreBadge').textContent = "Score: " + userScore;
+    document.getElementById('answerZone').classList.add('correct');
+    fb.textContent = attempts === 0 ? "Correct! 🎉" : "Correct now! ✓";
+    fb.className = 'feedback ok';
+    document.getElementById('checkBtn').textContent = (currentQIndex + 1 < QUESTIONS.length) ? 'Next →' : 'See my score →';
+  } else {
+    attempts++;
+    const az = document.getElementById('answerZone');
+    az.classList.remove('wrong');
+    void az.offsetWidth;
+    az.classList.add('wrong');
+    if (attempts >= 2) {
+      locked = true;
+      fb.innerHTML = "The correct order is:<br><span style='color:var(--neon-cyan);'>" + q.s + "</span>";
+      fb.className = 'feedback no';
+      document.getElementById('checkBtn').textContent = (currentQIndex + 1 < QUESTIONS.length) ? 'Next →' : 'See my score →';
+    } else {
+      fb.textContent = "Not quite — try again!";
+      fb.className = 'feedback no';
+    }
+  }
+}
+
+function nextQuestion() {
+  if (currentQIndex + 1 < QUESTIONS.length) loadQuestion(currentQIndex + 1);
+  else finishGame();
+}
+
+function showAlert(title, msg) {
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertText').textContent = msg;
+  document.getElementById('alertModal').style.display = 'flex';
+}
+
+function sendToGoogleSheet(name, gameTitle, score, total) {
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: name, gameTitle: gameTitle, score: score, total: total, details: "Final Score: " + score + "/" + total })
+  }).catch(err => console.error(err));
+}
+
+function finishGame() {
+  sendToGoogleSheet(playerName, GAME_TITLE, userScore, QUESTIONS.length);
+  document.getElementById('page_game').style.display = 'none';
+  document.getElementById('page_result').style.display = 'block';
+  document.getElementById('finalScoreText').textContent = "Score: " + userScore + " / " + QUESTIONS.length;
+}
+</script>
+</body>
+</html>
