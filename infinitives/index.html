@@ -96,9 +96,6 @@
     align-content: flex-start;
     margin-bottom: 16px;
   }
-  .answer-zone.correct { border-color: var(--neon-green); box-shadow: 0 0 18px rgba(0, 255, 102, 0.25); }
-  .answer-zone.wrong { border-color: var(--neon-red); animation: shake .3s; }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
   .bank-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; margin-bottom: 6px; }
   .tile {
     background: rgba(0, 240, 255, 0.1);
@@ -113,9 +110,7 @@
   }
   .tile:hover { background: rgba(0, 240, 255, 0.25); }
   .answer-zone .tile { background: rgba(161, 0, 255, 0.18); border-color: var(--neon-purple); }
-  .feedback { min-height: 22px; font-weight: 700; font-size: 15px; margin-top: 10px; text-align: center; }
-  .feedback.ok { color: var(--neon-green); }
-  .feedback.no { color: var(--neon-red); }
+  .feedback { min-height: 22px; font-weight: 700; font-size: 15px; margin-top: 10px; text-align: center; color: var(--neon-red); }
   input[type="text"] {
     width: 100%;
     padding: 16px;
@@ -150,6 +145,25 @@
     font-weight: 700;
     font-size: 13px;
     cursor: pointer;
+  }
+  .wrong-list { text-align: left; margin-top: 18px; display: flex; flex-direction: column; gap: 10px; }
+  .wrong-item {
+    background: rgba(255, 77, 109, 0.08);
+    border: 1px solid rgba(255, 77, 109, 0.45);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .wrong-item .wcat {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--neon-red);
+    font-weight: 700;
+    margin-bottom: 4px;
   }
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -197,14 +211,14 @@
   <div id="page_game" class="glass-panel" style="display:none;">
     <div class="progress-badge">
       <span id="qCounter">Sentence 1 of 20</span>
-      <span id="scoreBadge" style="color:var(--neon-green);">Score: 0</span>
+      <span></span>
     </div>
     <div class="q-type-label" id="typeLabel">After some verbs</div>
     <div class="instruction">Tap the words to put them in the correct order.</div>
     <div class="answer-zone" id="answerZone"></div>
     <div class="bank-zone" id="bankZone"></div>
     <div class="feedback" id="feedback"></div>
-    <button class="navbtn" id="checkBtn" onclick="checkAnswer()">Check ✓</button>
+    <button class="navbtn" id="nextBtn" onclick="nextSentence()">Next →</button>
     <div style="text-align:center; margin-top:12px;">
       <button class="smallbtn" onclick="clearAnswer()">Clear</button>
     </div>
@@ -213,7 +227,8 @@
   <div id="page_result" class="glass-panel" style="display:none; text-align:center;">
     <h2 style="font-family:'Space Grotesk'; color:var(--neon-cyan); font-size:28px; margin-bottom:8px;">Challenge Complete! 🚀</h2>
     <p style="font-size:22px; font-weight:800; color:var(--neon-green); margin-bottom:12px;" id="finalScoreText">Score: 20 / 20</p>
-    <p style="font-size:14px; color:var(--text-muted);">Your detailed score has been recorded for your teacher.</p>
+    <p style="font-size:14px; color:var(--text-muted);">Your score has been recorded for your teacher.</p>
+    <div id="wrongBox"></div>
   </div>
 </div>
 
@@ -222,33 +237,32 @@ const GAME_TITLE = "Infinitives Unjumble — Uses of the Infinitive (20 Qs)";
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx3wdBUc9D5cdsuhC8ZFftvpclgVD0k1Rw6_GG2z4weIyOngoMKspygU7Mb40z7A7n7kg/exec";
 
 const QUESTIONS = [
-  { cat: "After some verbs", s: "I want to travel around the world." },
-  { cat: "After some verbs", s: "Try not to talk about controversial subjects." },
-  { cat: "After some verbs", s: "What are you planning to do next weekend?" },
-  { cat: "After some verbs", s: "I've never offered to look after someone's pet." },
-  { cat: "After some verbs", s: "I'd like to have more time for myself." },
-  { cat: "To give a reason (purpose)", s: "Mary went to the supermarket to buy some milk." },
-  { cat: "To give a reason (purpose)", s: "Dress formally to make a good impression." },
-  { cat: "To give a reason (purpose)", s: "Ask follow-up questions not to let the conversation die." },
-  { cat: "To give a reason (purpose)", s: "We are doing a lot of exercises to learn the rules." },
-  { cat: "To give a reason (purpose)", s: "He's tidied up his bedroom to show his mum he's responsible." },
-  { cat: "After adjectives", s: "I think it's impossible to learn a language in a month." },
-  { cat: "After adjectives", s: "How nice to buy this present for me!" },
-  { cat: "After adjectives", s: "I thought it was easy to use that program." },
-  { cat: "After adjectives", s: "Do you think it's important to learn a foreign language?" },
-  { cat: "After adjectives", s: "I think it's hard to spend the weekend on my own." },
-  { cat: "After a question word", s: "I don't know what to tell you." },
-  { cat: "After a question word", s: "She didn't tell me what to do." },
-  { cat: "After a question word", s: "I don't understand how to do it." },
-  { cat: "After a question word", s: "He told me where to go." },
-  { cat: "After a question word", s: "I can't decide when to phone her." }
+  { cat: "After some verbs", s: "I want to buy a new phone." },
+  { cat: "After some verbs", s: "She would like to drink some tea." },
+  { cat: "After some verbs", s: "We need to go home now." },
+  { cat: "After some verbs", s: "They plan to travel in summer." },
+  { cat: "After some verbs", s: "I hope to see you soon." },
+  { cat: "To give a reason (purpose)", s: "I went to the shop to buy some bread." },
+  { cat: "To give a reason (purpose)", s: "She studies hard to pass her exam." },
+  { cat: "To give a reason (purpose)", s: "He got up early to catch the bus." },
+  { cat: "To give a reason (purpose)", s: "We use a dictionary to learn new words." },
+  { cat: "To give a reason (purpose)", s: "Sara went to the kitchen to drink some water." },
+  { cat: "After adjectives", s: "It is easy to ride a bike." },
+  { cat: "After adjectives", s: "It is important to eat breakfast." },
+  { cat: "After adjectives", s: "It is hard to wake up early." },
+  { cat: "After adjectives", s: "It is fun to play football with friends." },
+  { cat: "After adjectives", s: "It is dangerous to run in the street." },
+  { cat: "After a question word", s: "I don't know what to do." },
+  { cat: "After a question word", s: "He taught me how to swim." },
+  { cat: "After a question word", s: "We don't know where to go." },
+  { cat: "After a question word", s: "She told me when to come." },
+  { cat: "After a question word", s: "I can't decide what to wear." }
 ];
 
 let playerName = "";
 let currentQIndex = 0;
 let userScore = 0;
-let attempts = 0;
-let locked = false;
+let wrongList = [];
 
 function shuffle(arr) {
   const a = arr.slice();
@@ -274,27 +288,21 @@ function makeTile(word) {
   t.className = 'tile';
   t.textContent = word;
   t.onclick = () => {
-    if (locked) return;
     const parent = t.parentElement;
     if (parent.id === 'bankZone') document.getElementById('answerZone').appendChild(t);
     else document.getElementById('bankZone').appendChild(t);
+    document.getElementById('feedback').textContent = "";
   };
   return t;
 }
 
 function loadQuestion(index) {
   currentQIndex = index;
-  attempts = 0;
-  locked = false;
   const q = QUESTIONS[index];
   document.getElementById('qCounter').textContent = "Sentence " + (index + 1) + " of " + QUESTIONS.length;
-  document.getElementById('scoreBadge').textContent = "Score: " + userScore;
   document.getElementById('typeLabel').textContent = q.cat;
-  const fb = document.getElementById('feedback');
-  fb.textContent = "";
-  fb.className = 'feedback';
+  document.getElementById('feedback').textContent = "";
   const az = document.getElementById('answerZone');
-  az.className = 'answer-zone';
   az.innerHTML = '';
   const bz = document.getElementById('bankZone');
   bz.innerHTML = '';
@@ -302,58 +310,31 @@ function loadQuestion(index) {
   let tiles = shuffle(words);
   if (tiles.join(' ') === q.s) tiles = shuffle(words);
   tiles.forEach(w => bz.appendChild(makeTile(w)));
-  document.getElementById('checkBtn').textContent = 'Check ✓';
+  document.getElementById('nextBtn').textContent = (index + 1 < QUESTIONS.length) ? 'Next →' : 'Finish →';
 }
 
 function clearAnswer() {
-  if (locked) return;
   const az = document.getElementById('answerZone');
   const bz = document.getElementById('bankZone');
   while (az.firstChild) bz.appendChild(az.firstChild);
+  document.getElementById('feedback').textContent = "";
 }
 
 function currentAnswer() {
   return Array.from(document.getElementById('answerZone').children).map(t => t.textContent).join(' ');
 }
 
-function checkAnswer() {
-  if (locked) { nextQuestion(); return; }
+function nextSentence() {
   const q = QUESTIONS[currentQIndex];
   const total = q.s.split(' ').length;
   const placed = document.getElementById('answerZone').children.length;
-  const fb = document.getElementById('feedback');
   if (placed < total) {
-    fb.textContent = "Use all the words first!";
-    fb.className = 'feedback no';
+    document.getElementById('feedback').textContent = "Use all the words first!";
     return;
   }
-  if (currentAnswer() === q.s) {
-    if (attempts === 0) userScore++;
-    locked = true;
-    document.getElementById('scoreBadge').textContent = "Score: " + userScore;
-    document.getElementById('answerZone').classList.add('correct');
-    fb.textContent = attempts === 0 ? "Correct! 🎉" : "Correct now! ✓";
-    fb.className = 'feedback ok';
-    document.getElementById('checkBtn').textContent = (currentQIndex + 1 < QUESTIONS.length) ? 'Next →' : 'See my score →';
-  } else {
-    attempts++;
-    const az = document.getElementById('answerZone');
-    az.classList.remove('wrong');
-    void az.offsetWidth;
-    az.classList.add('wrong');
-    if (attempts >= 2) {
-      locked = true;
-      fb.innerHTML = "The correct order is:<br><span style='color:var(--neon-cyan);'>" + q.s + "</span>";
-      fb.className = 'feedback no';
-      document.getElementById('checkBtn').textContent = (currentQIndex + 1 < QUESTIONS.length) ? 'Next →' : 'See my score →';
-    } else {
-      fb.textContent = "Not quite — try again!";
-      fb.className = 'feedback no';
-    }
-  }
-}
-
-function nextQuestion() {
+  const mine = currentAnswer();
+  if (mine === q.s) userScore++;
+  else wrongList.push({ n: currentQIndex + 1, cat: q.cat, mine: mine });
   if (currentQIndex + 1 < QUESTIONS.length) loadQuestion(currentQIndex + 1);
   else finishGame();
 }
@@ -364,20 +345,33 @@ function showAlert(title, msg) {
   document.getElementById('alertModal').style.display = 'flex';
 }
 
-function sendToGoogleSheet(name, gameTitle, score, total) {
+function sendToGoogleSheet(name, gameTitle, score, total, details) {
   fetch(GOOGLE_SCRIPT_URL, {
     method: "POST",
     mode: "no-cors",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: name, gameTitle: gameTitle, score: score, total: total, details: "Final Score: " + score + "/" + total })
+    body: JSON.stringify({ name: name, gameTitle: gameTitle, score: score, total: total, details: details })
   }).catch(err => console.error(err));
 }
 
 function finishGame() {
-  sendToGoogleSheet(playerName, GAME_TITLE, userScore, QUESTIONS.length);
+  const wrongNums = wrongList.map(w => "#" + w.n).join(", ");
+  const details = "Final Score: " + userScore + "/" + QUESTIONS.length + (wrongList.length ? " | Wrong sentences: " + wrongNums : " | All correct");
+  sendToGoogleSheet(playerName, GAME_TITLE, userScore, QUESTIONS.length, details);
   document.getElementById('page_game').style.display = 'none';
   document.getElementById('page_result').style.display = 'block';
   document.getElementById('finalScoreText').textContent = "Score: " + userScore + " / " + QUESTIONS.length;
+  const box = document.getElementById('wrongBox');
+  if (!wrongList.length) {
+    box.innerHTML = '<p style="font-size:16px; font-weight:700; color:var(--neon-green); margin-top:16px;">Perfect! All your sentences were correct 🎉</p>';
+  } else {
+    let html = '<div style="font-family:\'Space Grotesk\'; font-weight:700; color:var(--neon-red); margin-top:10px;">These sentences were wrong:</div><div class="wrong-list">';
+    wrongList.forEach(w => {
+      html += '<div class="wrong-item"><span class="wcat">Sentence ' + w.n + ' — ' + w.cat + '</span>✗ ' + w.mine + '</div>';
+    });
+    html += '</div>';
+    box.innerHTML = html;
+  }
 }
 </script>
 </body>
